@@ -1,24 +1,26 @@
 require("dotenv").config();
-const mongoose = require("mongoose");
 const express = require("express");
-const router = require("./router");
+const cros = require("cors");
+const expressjwt = require("express-jwt");
 
 const app = express();
 
+app.use(cros());
 app.use(express.json());
-
-mongoose.connect(
-  "mongodb://localhost/BagStore",
-  () => {
-    console.log("connected");
-  },
-  (e) => console.error(e)
-);
+app.use(
+  expressjwt({ secret: process.env.ACCESS_TOKEN_SECRET, algorithms: ['HS256']})
+    .unless({path: [
+      '/auth/login',
+      '/auth/register',
+      '/product/list'
+    ]}));
 
 app.get("/", (req, res) => {
   res.json({ message: "Hello" });
 });
 
-app.use("/bagstore", router);
+app.use("/auth", require('./routers/auth'));
+app.use("/products", require('./routers/products'))
+app.use("/carts", require('./routers/carts'));;
 
-app.listen(8080, () => console.log("listening port 8080"));
+app.listen(9090, () => console.log("listening port 9090"));

@@ -4,4 +4,6 @@ class BadRequestError {
   }
 }
 
-module.exports = {BadRequestError};
+class DoesNotExistError {}
+
+module.exports = {BadRequestError, DoesNotExistError};

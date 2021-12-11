@@ -27,7 +27,7 @@ class User {
   }
 
   static async userExists(username) {
-    return Promise.resolve((await User.doc(username).get()).exists);
+    return (await User.doc(username).get()).exists;
   }
 
   static async findByCredentials(username, password) {

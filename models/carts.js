@@ -3,10 +3,12 @@ const User = require("./users");
 const mongoose = require("mongoose");
 const db = require('./firestore');
 
+function _getEmptyCart(username) {
+  return {items: []}
+}
+
 class Cart {
-  // username
   // items: [{ productCode, quantity, price}]
-  // totalPrice
 
   static collection(username) {
     return User.doc(username).collection('cart');
@@ -19,7 +21,11 @@ class Cart {
   static async findByUsername(username) {
     const doc = await Cart.doc(username).get();
     if (doc.exists) return doc.data();
-    return {username, items: []}
+    return _getEmptyCart(username)
+  }
+
+  static async clearCart(username) {
+    return Cart.doc(username).set(_getEmptyCart(username));
   }
 
   static async save(username, cart) {

@@ -1,47 +1,46 @@
-const mongoose = require("mongoose");
 const { BadRequestError } = require("../common/errors");
-const db = require("./firestore");
-const User = require("./users");
+const Merchant = require("./merchants");;
 
 class Product {
+  // merchantId
   // productCode
   // title
   // imagePath
   // description
   // price
 
-  static collection() {
-    return db.collection('products');
+  static collection(merchantId) {
+    return Merchant.doc(merchantId).collection('products');
   }
 
-  static doc(productCode) {
-    return Product.collection().doc(productCode);
+  static doc(merchantId, productCode) {
+    return Product.collection(merchantId).doc(productCode);
   }
 
-  static async listProducts(pageNo) {
+  static async listProducts(merchantId, pageNo) {
     const products = [];
-    const productDocs = await Product.collection().get();
+    const productDocs = await Product.collection(merchantId).get();
     productDocs.forEach(doc => products.push(doc.data()));
     return products;
   }
 
-  static async getProduct(productCode) {
-    const doc = await Product.doc(productCode).get();
+  static async getProduct(merchantId, productCode) {
+    const doc = await Product.doc(merchantId, productCode).get();
     if (!doc.exists) {
       throw new BadRequestError('Product not found');
     }
-    return doc.data()
+    return doc.data();
   }
 
-  async productExists(productCode) {
-    return (await Product.doc(productCode)).exists;
+  async productExists(merchantId, productCode) {
+    return (await Product.doc(merchantId, productCode)).exists;
   }
 
   async addProduct(product) {
-    if (Product.productExists(product.productCode)) {
+    if (Product.productExists(product.merchantId, product.productCode)) {
       throw new BackendError('Product already exists!');
     }
-    await P.doc(product.productCode).set(product);
+    await Product.doc(product.merchantId, product.productCode).set(product);
   }
 }
 

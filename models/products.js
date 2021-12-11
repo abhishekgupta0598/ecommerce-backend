@@ -27,7 +27,7 @@ class Product {
   static async getProduct(merchantId, productCode) {
     const doc = await Product.doc(merchantId, productCode).get();
     if (!doc.exists) {
-      throw new BadRequestError('Product not found');
+      throw new BadRequestError("Product not found");
     }
     return doc.data();
   }
@@ -44,4 +44,4 @@ class Product {
   }
 }
 
-module.exports = Product
+module.exports = Product;

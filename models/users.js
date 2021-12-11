@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const db = require('./firestore');
-const bcrypt = require('bcrypt');
+const db = require("./firestore");
+const bcrypt = require("bcrypt");
 const { BadRequestError } = require("../common/errors");
 
 class User {
@@ -9,7 +9,7 @@ class User {
   // passHash
 
   static collection() {
-    return db.collection('users');
+    return db.collection("users");
   }
 
   static doc(username) {
@@ -19,7 +19,7 @@ class User {
   static async findByUsername(username) {
     const userDoc = await User.doc(username).get();
     if (!userDoc.exists) {
-      throw new BadRequestError('User not found');
+      throw new BadRequestError("User not found");
     }
     const user = userDoc.data();
     delete user.passHash;
@@ -33,11 +33,11 @@ class User {
   static async findByCredentials(username, password) {
     const userDoc = await User.doc(username).get();
     if (!userDoc.exists) {
-      throw new BadRequestError('Invalid credentials!');
+      throw new BadRequestError("Invalid credentials!");
     }
     const user = userDoc.data();
-    if (!await bcrypt.compare(password, user.passHash)) {
-      throw new BadRequestError('Invalid credentials!');
+    if (!(await bcrypt.compare(password, user.passHash))) {
+      throw new BadRequestError("Invalid credentials!");
     }
     delete user.passHash;
     return user;

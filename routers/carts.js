@@ -23,7 +23,7 @@ router.post(
   "/items/add",
   asyncHandler(async (req, res) => {
     const cart = await Cart.findByUsername(req.user.username);
-    const product = await Product.getProduct(req.body.productCode);
+    const product = await Product.getProduct("main", req.body.productCode);
     const itemMatches = cart.items.filter(
       (item) => item.productCode == product.productCode
     );
@@ -45,7 +45,7 @@ router.post(
   "/items/remove",
   asyncHandler(async (req, res) => {
     const cart = await Cart.findByUsername(req.user.username);
-    const product = await Product.getProduct(req.body.productCode);
+    const product = await Product.getProduct("main", req.body.productCode);
     const itemMatches = cart.items.filter(
       (item) => item.productCode == product.productCode
     );

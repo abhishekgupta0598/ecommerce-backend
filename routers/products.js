@@ -8,7 +8,7 @@ router.use(express.json());
 router.get(
   "/list",
   asyncHandler(async (req, res) => {
-    const products = await Product.listProducts(0);
+    const products = await Product.listProducts("main", 0);
     // console.log("product-list", req.user);
     return { products: products };
   })

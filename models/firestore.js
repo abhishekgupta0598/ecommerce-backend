@@ -14,7 +14,7 @@ const {
 // On GCP, no credential is needed.
 let creds = null;
 if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-  const serviceAccount = require("/Users/abhishek/Downloads/dishyhut-local.json");
+  const serviceAccount = require(process.env.GOOGLE_APPLICATION_CREDENTIALS);
   creds = cert(serviceAccount);
 } else {
   creds = applicationDefault();

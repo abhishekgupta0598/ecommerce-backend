@@ -1,4 +1,5 @@
 const { BadRequestError } = require("../common/errors");
+const db = require("./firestore");
 const Merchant = require("./merchants");;
 
 class Product {
@@ -10,6 +11,9 @@ class Product {
   // price
 
   static collection(merchantId) {
+    if (merchantId == "main") {
+      return db.collection("products");
+    }
     return Merchant.doc(merchantId).collection('products');
   }
 
@@ -37,7 +41,7 @@ class Product {
   }
 
   async addProduct(product) {
-    if (Product.productExists(product.merchantId, product.productCode)) {
+    if (Product.productExists(product.merchantId || "main", product.productCode)) {
       throw new BackendError('Product already exists!');
     }
     await Product.doc(product.merchantId, product.productCode).set(product);

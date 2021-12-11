@@ -13,14 +13,14 @@ class UserOrders {
     return UserOrders.collection(username).doc(month);
   }
 
-  static get(username, month) {
+  static async get(username, month) {
     const doc = await UserOrders.doc(username, month).get();
     if (!doc.exists) {
-      return {orders: []}
+      return { orders: [] }
     }
   }
 
-  static save(username, month, userOrders) {
+  static async save(username, month, userOrders) {
     return UserOrders.get(username, month).set(userOrders);
   }
 }

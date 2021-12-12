@@ -1,0 +1,11 @@
+runtime: nodejs16
+automatic_scaling:
+  target_cpu_utilization: 0.9
+  min_instances: 0
+  max_instances: 1
+  max_concurrent_requests: 1000
+
+env_variables:
+  ACCESS_TOKEN_SECRET: "OVERRIDE"
+  REFRESH_TOKEN_SECRET: "OVERRIDE"
+  REACT_APP_KEY: "OVERRIDE"

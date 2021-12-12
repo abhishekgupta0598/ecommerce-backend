@@ -25,4 +25,4 @@ app.use("/products", require("./routers/products"));
 app.use("/carts", require("./routers/carts"));
 app.use("/checkout", require("./routers/payment"));
 
-app.listen(9090, () => console.log("listening port 9090"));
+app.listen(process.env.PORT, () => console.log("listening port 9090"));

@@ -1,4 +1,5 @@
 const db = require("./firestore");
+const User = require("./users");
 
 class UserStats {
   // balance
@@ -14,13 +15,13 @@ class UserStats {
   static async get(username) {
     const userDoc = await User.doc(username).get();
     if (!userDoc.exists) {
-      return {balance: 0};
+      return { balance: 0 };
     }
     return userDoc.data();
   }
 
   static save(username, stats) {
-    return UserStats.get(username).set(stats);
+    return UserStats.doc(username).set(stats);
   }
 }
 

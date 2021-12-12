@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const { asyncHandler } = require("../common/async");
 const Cart = require("../models/carts");
@@ -9,6 +10,7 @@ const UserOrders = require("../models/userorders");
 const { BadRequestError } = require("../common/errors");
 const UserStats = require("../models/userstats");
 const UserAudit = require("../models/useraudit");
+const stripe = require("stripe")(process.env.REACT_APP_KEY);
 
 router.use(express.json());
 
@@ -71,15 +73,59 @@ router.post(
 );
 
 router.post("/checkout", asyncHandler(async (req) => {
+  if (!req.body.paymentMethod) {
+    throw new BadRequestError("Payment method must be set");
+  }
+  if (req.body.paymentMethod != "OFFLINE" && !req.body.paymentToken) {
+    throw new BadRequestError("Payment not completed.");
+  }
   const cart = await Cart.findByUsername(req.user.username);
   if (cart.items.length == 0) {
     throw new BadRequestError('Cannot checkout an empty cart!');
   }
   let orderId = uuid.v4();
-  while (Order.orderExists(orderId)) {
+  let numTrials = 0;
+  while (await Order.orderExists(orderId)) {
     orderId = uuid.v4();
+    if (++numTrials > 10) {
+      throw new BadRequestError("Could not generate order id");
+    }
   }
+
+
+  // TODO: validate availability and price of each item in the cart.
+  let total = 0;
+  for (const item of cart.items) {
+    total += item.quantity * item.price;
+  }
+
+  if (req.body.paymentMethod == "STRIPE") {
+    const customer = await stripe.customers.create({
+      email: req.user.email,
+      source: req.body.paymentToken.id,
+    })
+    // TODO: Maybe store if customer already exists?
+    // TODO: Maybe store some details of the customer in DB?
+    return await stripe.charges.create({
+      amount: Math.round(total * 100) /* cents */,
+      currency: "usd",
+      customer: customer.id,
+      receipt_email: req.user.email,
+      description: `purchase of order ${orderId}`,
+      shipping: {
+        name: req.user.username,
+        address: {
+          country: 'India',
+        },
+      },
+    });
+  }
+
   const order = { ...cart, id: orderId, status: Order.STATUS_PENDING_PAYMENT };
+  if (req.body.paymentToken) {
+    order.status = Order.STATUS_CREATED;
+    order.paymentToken = req.body.paymentToken;
+  }
   const userOrders = await UserOrders.get(req.user.username, orderId);
   userOrders.orders.push(orderId);
 
@@ -88,18 +134,12 @@ router.post("/checkout", asyncHandler(async (req) => {
   await UserOrders.save(req.user.username, orderId, userOrders);
   await Cart.clearCart(req.user.username);
 
-  // TODO: validate availability and price of each item in the cart.
-
-  const total = 0;
-  for (const item of cart.items) {
-    total += item.quantity * item.price;
+  if (!req.paymentToken) {
+    const userStats = await UserStats.get(req.user.username);
+    userStats.balance += total;
+    await UserStats.save(req.user.username, userStats);
+    await UserAudit.add(req.user.username, `User balance updated by ${total} to ${userStats.balance} because of order ${orderId}.`)
   }
-  const userStats = await UserStats.get(req.user.username);
-  userStats.balance += total;
-  await UserStats.save(req.user.username, userStats);
-  await UserAudit.add(req.user.username, `User balance updated by ${total} to ${userStats.balance} because of order ${orderId}.`)
-
-  return {};
 }));
 
 router.get(

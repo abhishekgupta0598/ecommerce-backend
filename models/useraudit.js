@@ -8,7 +8,7 @@ class UserAudit {
   }
 
   static add(username, log) {
-    return UserStats.collection(username).doc(Date.now()).set(log);
+    return UserAudit.collection(username).doc(Date.now().toString()).set({ 'log': log });
   }
 }
 

@@ -21,7 +21,7 @@ class UserOrders {
   }
 
   static async save(username, month, userOrders) {
-    return UserOrders.get(username, month).set(userOrders);
+    return UserOrders.doc(username, month).set(userOrders);
   }
 }
 

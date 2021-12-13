@@ -10,6 +10,7 @@ const UserOrders = require("../models/userorders");
 const { BadRequestError } = require("../common/errors");
 const UserStats = require("../models/userstats");
 const UserAudit = require("../models/useraudit");
+const MerchantOrders = require("../models/merchantorders");
 const stripe = require("stripe")(process.env.REACT_APP_KEY);
 
 router.use(express.json());
@@ -83,6 +84,15 @@ router.post("/checkout", asyncHandler(async (req) => {
   if (cart.items.length == 0) {
     throw new BadRequestError('Cannot checkout an empty cart!');
   }
+  let merchantId = null;
+  for (const item of cart.items) {
+    const imid = item.merchantId || 'main';
+    if (!merchantId) {
+      merchantId = imid;
+    } else if (imid != merchantId) {
+      throw new BadRequestError('Cart contains product from multiple merchants.');
+    }
+  }
   let orderId = uuid.v4();
   let numTrials = 0;
   while (await Order.orderExists(orderId)) {
@@ -91,7 +101,6 @@ router.post("/checkout", asyncHandler(async (req) => {
       throw new BadRequestError("Could not generate order id");
     }
   }
-
 
   // TODO: validate availability and price of each item in the cart.
   let total = 0;
@@ -121,7 +130,7 @@ router.post("/checkout", asyncHandler(async (req) => {
     });
   }
 
-  const order = { ...cart, id: orderId, status: Order.STATUS_PENDING_PAYMENT };
+  const order = { ...cart, id: orderId, status: Order.STATUS_PENDING_PAYMENT, merchantId, username: req.user.username };
   if (req.body.paymentToken) {
     order.status = Order.STATUS_CREATED;
     order.paymentToken = req.body.paymentToken;

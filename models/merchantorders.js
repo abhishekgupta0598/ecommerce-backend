@@ -12,7 +12,7 @@ class MerchantOrders {
     return MerchantOrders.collection(merchantId).doc(date);
   }
 
-  static get(merchantId, date) {
+  static async get(merchantId, date) {
     const doc = await MerchantOrders.doc(merchantId, date).get();
     if (!doc.exists) {
       return { orders: [] }

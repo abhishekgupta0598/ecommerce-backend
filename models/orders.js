@@ -4,6 +4,7 @@ const { DoesNotExistError } = require("../common/errors");
 class Order {
   // id
   // username
+  // merchantId
   // items: [Product]
   // status: one of the below enums
   // payments: [{

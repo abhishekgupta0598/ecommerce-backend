@@ -12,13 +12,9 @@ app.use(
     secret: process.env.ACCESS_TOKEN_SECRET,
     algorithms: ["HS256"],
   }).unless({
-    path: ["/auth/login", "/auth/register", "/product/list", "/checkout"],
+    path: ["/auth/login", "/auth/register", "/products/list"],
   })
 );
-
-app.get("/", (req, res) => {
-  res.json({ message: "Hello" });
-});
 
 app.use("/auth", require("./routers/auth"));
 app.use("/products", require("./routers/products"));

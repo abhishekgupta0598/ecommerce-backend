@@ -6,6 +6,7 @@ const { BadRequestError } = require("../common/errors");
 class User {
   // username
   // email
+  // merchants
   // passHash
 
   static collection() {
@@ -22,8 +23,11 @@ class User {
       throw new BadRequestError("User not found");
     }
     const user = userDoc.data();
-    delete user.passHash;
-    return user;
+    return {
+      username: user.username,
+      email: user.email,
+      merchants: user.merchants || [],
+    };
   }
 
   static async userExists(username) {

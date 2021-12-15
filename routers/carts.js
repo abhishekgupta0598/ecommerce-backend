@@ -6,11 +6,9 @@ const Product = require("../models/products");
 const router = express();
 const uuid = require('uuid');
 const Order = require("../models/orders");
-const UserOrders = require("../models/userorders");
 const { BadRequestError } = require("../common/errors");
 const UserStats = require("../models/userstats");
 const UserAudit = require("../models/useraudit");
-const MerchantOrders = require("../models/merchantorders");
 const stripe = require("stripe")(process.env.REACT_APP_KEY);
 
 router.use(express.json());
@@ -135,12 +133,9 @@ router.post("/checkout", asyncHandler(async (req) => {
     order.status = Order.STATUS_CREATED;
     order.paymentToken = req.body.paymentToken;
   }
-  const userOrders = await UserOrders.get(req.user.username, orderId);
-  userOrders.orders.push(orderId);
 
   // TODO: Make these two transactional.
   await Order.save(order);
-  await UserOrders.save(req.user.username, orderId, userOrders);
   await Cart.clearCart(req.user.username);
 
   if (!req.paymentToken) {

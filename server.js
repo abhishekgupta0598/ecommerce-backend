@@ -19,5 +19,7 @@ app.use(
 app.use("/auth", require("./routers/auth"));
 app.use("/products", require("./routers/products"));
 app.use("/carts", require("./routers/carts"));
+app.use("/orders", require("./routers/orders"));
+
 
 app.listen(process.env.PORT, () => console.log("listening port 9090"));

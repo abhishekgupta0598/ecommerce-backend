@@ -2,7 +2,6 @@ const express = require("express");
 const { asyncHandler } = require("../common/async");
 const { BadRequestError } = require("../common/errors");
 const Product = require("../models/products");
-const { route } = require("./carts");
 const router = express();
 
 router.use(express.json());
@@ -10,7 +9,8 @@ router.use(express.json());
 router.get(
   "/list",
   asyncHandler(async (req, res) => {
-    const products = await Product.listProducts("main", 0);
+    const merchantId = req.query.merchantId || 'main';
+    const products = await Product.listProducts(merchantId, 0);
     // console.log("product-list", req.user);
     return { products: products };
   })

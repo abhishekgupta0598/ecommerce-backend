@@ -113,7 +113,7 @@ router.post("/checkout", asyncHandler(async (req) => {
     })
     // TODO: Maybe store if customer already exists?
     // TODO: Maybe store some details of the customer in DB?
-    return await stripe.charges.create({
+    await stripe.charges.create({
       amount: Math.round(total * 100) /* cents */,
       currency: "usd",
       customer: customer.id,

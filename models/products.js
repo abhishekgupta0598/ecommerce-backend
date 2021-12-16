@@ -1,6 +1,6 @@
 const { BadRequestError } = require("../common/errors");
 const db = require("./firestore");
-const Merchant = require("./merchants");;
+const Merchant = require("./merchants");
 
 class Product {
   // merchantId

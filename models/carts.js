@@ -1,10 +1,7 @@
 const User = require("./users");
 
-const mongoose = require("mongoose");
-const db = require('./firestore');
-
-function _getEmptyCart(username) {
-  return {items: []}
+function _getEmptyCart() {
+  return { items: [] }
 }
 
 class Cart {
@@ -21,11 +18,11 @@ class Cart {
   static async findByUsername(username) {
     const doc = await Cart.doc(username).get();
     if (doc.exists) return doc.data();
-    return _getEmptyCart(username)
+    return _getEmptyCart()
   }
 
   static async clearCart(username) {
-    return Cart.doc(username).set(_getEmptyCart(username));
+    return Cart.doc(username).set(_getEmptyCart());
   }
 
   static async save(username, cart) {
